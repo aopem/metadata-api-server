@@ -26,20 +26,8 @@ func CreateMetadataBroker(mainDirectory string) *MetadataBroker {
 	}
 }
 
-func (mb *MetadataBroker) CreateMetadata(bodyData []byte) *models.MetadataStore {
-	metadata := &models.Metadata{}
-	err := yaml.Unmarshal(bodyData, metadata)
-	if err != nil {
-		return nil
-	}
-
-	// get hash value and add to given metadata info
-	metadataStore := &models.MetadataStore{
-		Id:       utils.CalculateHash(bodyData),
-		Metadata: metadata,
-	}
-
-	// get YAML for writing to file
+func (mb *MetadataBroker) CreateMetadata(metadataStore *models.MetadataStore) *models.MetadataStore {
+	// get YAML to write to file
 	writeData, err := yaml.Marshal(&metadataStore)
 	if err != nil {
 		return nil

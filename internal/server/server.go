@@ -17,7 +17,6 @@ func CreateServer(router *gin.Engine, mainDirectory string) *Server {
 	mb := brokers.CreateMetadataBroker(mainDirectory)
 	ms := services.CreateMetadataService(mb)
 	mc := controllers.CreateMetadataController(ms)
-
 	s := &Server{
 		Router:             router,
 		MetadataController: mc,
