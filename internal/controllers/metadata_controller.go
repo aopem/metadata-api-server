@@ -3,6 +3,7 @@ package controllers
 import (
 	"io"
 	"metadata-api-server/internal/services"
+	"metadata-api-server/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,12 @@ func CreateMetadataController(ms *services.MetadataService) *MetadataController 
 }
 
 func (mc *MetadataController) PutMetadata(c *gin.Context) {
+	var metadata models.Metadata
+	if err := c.BindYAML(&metadata); err != nil {
+		c.YAML(http.StatusBadRequest, nil)
+		return
+	}
+
 	bodyData, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		return
