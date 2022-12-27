@@ -33,5 +33,7 @@ func (s *Server) Run(addr string) {
 
 func (s *Server) route() {
 	s.Router.PUT("/metadata", s.MetadataController.PutMetadata)
+	s.Router.DELETE("/metadata/:id", s.MetadataController.DeleteMetadataById)
+	s.Router.GET("/metadata", s.MetadataController.GetMetadata)
 	s.Router.GET("/metadata/:id", s.MetadataController.GetMetadataById)
 }

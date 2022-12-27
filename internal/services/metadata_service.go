@@ -15,14 +15,18 @@ func CreateMetadataService(b *brokers.MetadataBroker) *MetadataService {
 	}
 }
 
-func (s *MetadataService) CreateMetadata(bodyData []byte) *models.MetadataStore {
-	return s.MetadataBroker.CreateMetadata(bodyData)
+func (ms *MetadataService) CreateMetadata(bodyData []byte) *models.MetadataStore {
+	return ms.MetadataBroker.CreateMetadata(bodyData)
 }
 
-func (s *MetadataService) GetMetadataById(id string) *models.MetadataStore {
-	return s.MetadataBroker.GetMetadataYamlById(id)
+func (ms *MetadataService) DeleteMetadataById(id string) *models.MetadataStore {
+	return ms.MetadataBroker.DeleteMetadataById(id)
 }
 
-func (s *MetadataService) GetMetadata() []models.Metadata {
-	return s.MetadataBroker.GetMetadataYamlList()
+func (ms *MetadataService) GetMetadataById(id string) *models.MetadataStore {
+	return ms.MetadataBroker.GetMetadataById(id)
+}
+
+func (ms *MetadataService) GetMetadata() []models.MetadataStore {
+	return ms.MetadataBroker.GetMetadataList()
 }

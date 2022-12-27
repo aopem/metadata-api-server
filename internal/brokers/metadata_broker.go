@@ -33,7 +33,7 @@ func (mb *MetadataBroker) CreateMetadata(bodyData []byte) *models.MetadataStore 
 		return nil
 	}
 
-	// get checksum hash value
+	// get hash value and add to given metadata info
 	metadataStore := &models.MetadataStore{
 		Id:       utils.CalculateHash(bodyData),
 		Metadata: metadata,
@@ -53,7 +53,22 @@ func (mb *MetadataBroker) CreateMetadata(bodyData []byte) *models.MetadataStore 
 	return metadataStore
 }
 
-func (mb *MetadataBroker) GetMetadataYamlById(id string) *models.MetadataStore {
+func (mb *MetadataBroker) DeleteMetadataById(id string) *models.MetadataStore {
+	metadataFilepath := filepath.Join(mb.StorageDirectory, id+".yaml")
+
+	// first, get object to return
+	metadataStore := mb.GetMetadataById(id)
+
+	// then, delete file containing data
+	err := os.Remove(metadataFilepath)
+	if err != nil {
+		return nil
+	}
+
+	return metadataStore
+}
+
+func (mb *MetadataBroker) GetMetadataById(id string) *models.MetadataStore {
 	metadataFilepath := filepath.Join(mb.StorageDirectory, id+".yaml")
 	data := utils.ReadFile(metadataFilepath)
 
@@ -67,6 +82,26 @@ func (mb *MetadataBroker) GetMetadataYamlById(id string) *models.MetadataStore {
 	return metadataStore
 }
 
-func (mb *MetadataBroker) GetMetadataYamlList() []models.Metadata {
-	return nil
+func (mb *MetadataBroker) GetMetadataList() []models.MetadataStore {
+	files := utils.GetFolderItems(mb.StorageDirectory)
+
+	metadataList := []models.MetadataStore{}
+	for _, file := range files {
+		metadataFilepath := filepath.Join(mb.StorageDirectory, file.Name())
+
+		// read data for each file
+		data := utils.ReadFile(metadataFilepath)
+
+		// then, move to struct
+		metadataStore := &models.MetadataStore{}
+		err := yaml.Unmarshal(data, metadataStore)
+		if err != nil {
+			return nil
+		}
+
+		// lastly, add to list
+		metadataList = append(metadataList, *metadataStore)
+	}
+
+	return metadataList
 }

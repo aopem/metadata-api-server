@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"io/fs"
 	"os"
 
 	"github.com/google/uuid"
@@ -36,6 +37,16 @@ func FileExists(filepath string) bool {
 	}
 
 	return !info.IsDir()
+}
+
+func GetFolderItems(folderpath string) []fs.DirEntry {
+	dir, err := os.Open(folderpath)
+	if err != nil {
+		return nil
+	}
+
+	files, err := dir.ReadDir(0)
+	return files
 }
 
 func FolderExists(folderpath string) bool {

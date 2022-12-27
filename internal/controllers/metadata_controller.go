@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"io/ioutil"
+	"io"
 	"metadata-api-server/internal/services"
 	"net/http"
 
@@ -19,13 +19,18 @@ func CreateMetadataController(ms *services.MetadataService) *MetadataController 
 }
 
 func (mc *MetadataController) PutMetadata(c *gin.Context) {
-	bodyData, err := ioutil.ReadAll(c.Request.Body)
+	bodyData, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		return
 	}
 
 	responseMetadata := mc.MetadataService.CreateMetadata(bodyData)
 	c.YAML(http.StatusCreated, responseMetadata)
+}
+
+func (mc *MetadataController) DeleteMetadataById(c *gin.Context) {
+	responseMetadata := mc.MetadataService.DeleteMetadataById(c.Param("id"))
+	c.YAML(http.StatusGone, responseMetadata)
 }
 
 func (mc *MetadataController) GetMetadataById(c *gin.Context) {
