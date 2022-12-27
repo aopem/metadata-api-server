@@ -28,8 +28,8 @@ func (mc *MetadataController) PutMetadata(c *gin.Context) {
 	c.YAML(http.StatusCreated, responseMetadata)
 }
 
-func (mc *MetadataController) GetMetadataByHash(c *gin.Context) {
-	responseMetadata := mc.MetadataService.GetMetadataByHash(c.Param("hash"))
+func (mc *MetadataController) GetMetadataById(c *gin.Context) {
+	responseMetadata := mc.MetadataService.GetMetadataById(c.Param("id"))
 	c.YAML(http.StatusOK, responseMetadata)
 }
 

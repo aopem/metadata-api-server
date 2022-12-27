@@ -19,8 +19,8 @@ func (s *MetadataService) CreateMetadata(bodyData []byte) *models.MetadataStore 
 	return s.MetadataBroker.CreateMetadata(bodyData)
 }
 
-func (s *MetadataService) GetMetadataByHash(hash string) *models.MetadataStore {
-	return s.MetadataBroker.GetMetadataYamlByHash(hash)
+func (s *MetadataService) GetMetadataById(id string) *models.MetadataStore {
+	return s.MetadataBroker.GetMetadataYamlById(id)
 }
 
 func (s *MetadataService) GetMetadata() []models.Metadata {

@@ -14,7 +14,6 @@ type Server struct {
 }
 
 func CreateServer(router *gin.Engine, mainDirectory string) *Server {
-	// server dependency injection
 	mb := brokers.CreateMetadataBroker(mainDirectory)
 	ms := services.CreateMetadataService(mb)
 	mc := controllers.CreateMetadataController(ms)
@@ -34,5 +33,5 @@ func (s *Server) Run(addr string) {
 
 func (s *Server) route() {
 	s.Router.PUT("/metadata", s.MetadataController.PutMetadata)
-	s.Router.GET("/metadata/:hash", s.MetadataController.GetMetadataByHash)
+	s.Router.GET("/metadata/:id", s.MetadataController.GetMetadataById)
 }

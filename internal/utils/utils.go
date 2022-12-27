@@ -52,14 +52,14 @@ func GetUUID() string {
 	return uuid.New().String()
 }
 
-func CalculateChecksum(data []byte) string {
+func CalculateHash(data []byte) string {
 	hasher := sha256.New()
-	_, err := hasher.Write(data)
 
+	_, err := hasher.Write(data)
 	if err != nil {
 		// TODO: throw error
 		return ""
 	}
 
-	return hex.EncodeToString(hasher.Sum(nil))
+	return hex.EncodeToString(hasher.Sum(nil))[:8]
 }

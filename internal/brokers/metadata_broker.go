@@ -35,7 +35,7 @@ func (mb *MetadataBroker) CreateMetadata(bodyData []byte) *models.MetadataStore 
 
 	// get checksum hash value
 	metadataStore := &models.MetadataStore{
-		Hash:     utils.CalculateChecksum(bodyData),
+		Id:       utils.CalculateHash(bodyData),
 		Metadata: metadata,
 	}
 
@@ -46,15 +46,15 @@ func (mb *MetadataBroker) CreateMetadata(bodyData []byte) *models.MetadataStore 
 	}
 
 	// get filepath for saving data
-	metadataFilepath := filepath.Join(mb.StorageDirectory, metadataStore.Hash+".yaml")
+	metadataFilepath := filepath.Join(mb.StorageDirectory, metadataStore.Id+".yaml")
 
 	// write metadata to file
 	utils.WriteFile(metadataFilepath, writeData)
 	return metadataStore
 }
 
-func (mb *MetadataBroker) GetMetadataYamlByHash(hash string) *models.MetadataStore {
-	metadataFilepath := filepath.Join(mb.StorageDirectory, hash+".yaml")
+func (mb *MetadataBroker) GetMetadataYamlById(id string) *models.MetadataStore {
+	metadataFilepath := filepath.Join(mb.StorageDirectory, id+".yaml")
 	data := utils.ReadFile(metadataFilepath)
 
 	// read data into metadata object

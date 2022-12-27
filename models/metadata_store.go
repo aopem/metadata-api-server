@@ -1,6 +1,6 @@
 package models
 
 type MetadataStore struct {
-	Hash     string    `yaml:"hash"`
+	Id       string    `yaml:"id"`
 	Metadata *Metadata `yaml:"metadata"`
 }
