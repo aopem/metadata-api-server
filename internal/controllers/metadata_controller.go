@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"io"
 	"metadata-api-server/internal/services"
 	"metadata-api-server/models"
 	"net/http"
@@ -20,18 +19,15 @@ func CreateMetadataController(ms *services.MetadataService) *MetadataController 
 }
 
 func (mc *MetadataController) PutMetadata(c *gin.Context) {
-	var metadata models.Metadata
-	if err := c.BindYAML(&metadata); err != nil {
+	metadata := &models.Metadata{}
+
+	// validate metadata payload
+	if err := c.BindYAML(metadata); err != nil {
 		c.YAML(http.StatusBadRequest, nil)
 		return
 	}
 
-	bodyData, err := io.ReadAll(c.Request.Body)
-	if err != nil {
-		return
-	}
-
-	responseMetadata := mc.MetadataService.CreateMetadata(bodyData)
+	responseMetadata := mc.MetadataService.CreateMetadata(metadata)
 	c.YAML(http.StatusCreated, responseMetadata)
 }
 

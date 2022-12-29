@@ -2,6 +2,7 @@ package services
 
 import (
 	"metadata-api-server/internal/brokers"
+	"metadata-api-server/internal/query"
 	"metadata-api-server/internal/utils"
 	"metadata-api-server/models"
 
@@ -10,27 +11,31 @@ import (
 
 type MetadataService struct {
 	MetadataBroker *brokers.MetadataBroker
+	indexer        *query.Indexer
 }
 
 func CreateMetadataService(b *brokers.MetadataBroker) *MetadataService {
 	return &MetadataService{
 		MetadataBroker: b,
+		indexer:        query.CreateIndexer(),
 	}
 }
 
-func (ms *MetadataService) CreateMetadata(bodyData []byte) *models.MetadataStore {
-	metadata := &models.Metadata{}
-	err := yaml.Unmarshal(bodyData, metadata)
+func (ms *MetadataService) CreateMetadata(metadata *models.Metadata) *models.MetadataStore {
+	// get metadata in byte format to calculate a unique hash
+	metadataBytes, err := yaml.Marshal(metadata)
 	if err != nil {
-		return nil
+		panic(err)
 	}
 
-	// get hash value and add to given metadata info
+	// add hash ID to metadata for storage
 	metadataStore := &models.MetadataStore{
-		Id:       utils.CalculateHash(bodyData),
+		Id:       utils.CalculateHash(metadataBytes),
 		Metadata: metadata,
 	}
 
+	// pre-process for searches, then create using broker
+	ms.indexer.IndexMetadata(metadataStore)
 	return ms.MetadataBroker.CreateMetadata(metadataStore)
 }
 
