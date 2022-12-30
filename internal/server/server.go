@@ -5,7 +5,9 @@ import (
 	"metadata-api-server/internal/controllers"
 	"metadata-api-server/internal/query"
 	"metadata-api-server/internal/services"
+	"syscall"
 
+	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +15,7 @@ type Server struct {
 	Router             *gin.Engine
 	MetadataController *controllers.MetadataController
 	QueryController    *controllers.QueryController
+	indexBroker        *brokers.IndexBroker
 }
 
 func CreateServer(router *gin.Engine, mainDirectory string) *Server {
@@ -33,13 +36,24 @@ func CreateServer(router *gin.Engine, mainDirectory string) *Server {
 		Router:             router,
 		MetadataController: mc,
 		QueryController:    qc,
+		indexBroker:        ib,
 	}
 	s.route()
 	return s
 }
 
 func (s *Server) Run(addr string) {
-	s.Router.Run(addr)
+	server := endless.NewServer(addr, s.Router)
+	server.SignalHooks[endless.POST_SIGNAL][syscall.SIGINT] = append(
+		server.SignalHooks[endless.POST_SIGNAL][syscall.SIGINT],
+		s.onShutdown,
+	)
+	server.SignalHooks[endless.POST_SIGNAL][syscall.SIGTERM] = append(
+		server.SignalHooks[endless.POST_SIGNAL][syscall.SIGTERM],
+		s.onShutdown,
+	)
+
+	server.ListenAndServe()
 }
 
 func (s *Server) route() {
@@ -51,4 +65,8 @@ func (s *Server) route() {
 
 	// query endpoints
 	s.Router.PUT("/metadata/query", s.QueryController.PutMetadataQuery)
+}
+
+func (s *Server) onShutdown() {
+	s.indexBroker.SaveIndex()
 }

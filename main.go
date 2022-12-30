@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,5 +21,5 @@ func mainDirectory() string {
 
 func main() {
 	s := server.CreateServer(gin.Default(), mainDirectory())
-	endless.ListenAndServe("localhost:8080", s.Router)
+	s.Run("localhost:8080")
 }

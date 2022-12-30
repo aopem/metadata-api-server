@@ -20,7 +20,7 @@ func CreateIndexBroker(mainDirectory string) *IndexBroker {
 
 	// if index file does not already exist,
 	// then initialize all necessary attributes
-	if !utils.FileExists(indexPath) {
+	if !utils.FileExists(indexPath) || utils.FileEmpty(indexPath) {
 		// initialize index map
 		indexData["Title"] = map[string][]string{}
 		indexData["Version"] = map[string][]string{}

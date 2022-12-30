@@ -52,6 +52,19 @@ func FileExists(filepath string) bool {
 	return !info.IsDir()
 }
 
+func FileEmpty(filepath string) bool {
+	if !FileExists(filepath) {
+		return true
+	}
+
+	info, err := os.Stat(filepath)
+	if err != nil {
+		panic(err)
+	}
+
+	return info.Size() == 0
+}
+
 func GetFolderItems(folderpath string) []fs.DirEntry {
 	dir, err := os.Open(folderpath)
 	if err != nil {
