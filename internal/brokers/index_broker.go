@@ -15,7 +15,6 @@ type IndexBroker struct {
 
 func CreateIndexBroker(mainDirectory string) *IndexBroker {
 	indexPath := filepath.Join(mainDirectory, "localIndex", "index.gob")
-	indexFile := &os.File{}
 	indexData := map[string]map[string][]string{}
 
 	// if index file does not already exist,
@@ -37,11 +36,21 @@ func CreateIndexBroker(mainDirectory string) *IndexBroker {
 			// throw error
 			return nil
 		}
-		indexFile = utils.CreateFile(indexPath)
+		utils.CreateFile(indexPath)
 	} else {
+		indexFile, err := os.Open(indexPath)
+		if err != nil {
+			panic(err)
+		}
+
 		// otherwise, decode existing file data
 		decoder := gob.NewDecoder(indexFile)
 		decoder.Decode(&indexData)
+	}
+
+	indexFile, err := os.OpenFile(indexPath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		panic(err)
 	}
 
 	return &IndexBroker{
@@ -57,5 +66,8 @@ func (ib *IndexBroker) GetIndex() map[string]map[string][]string {
 
 func (ib *IndexBroker) SaveIndex() {
 	encoder := gob.NewEncoder(ib.indexFile)
-	encoder.Encode(ib.indexData)
+	err := encoder.Encode(ib.indexData)
+	if err != nil {
+		panic(err)
+	}
 }

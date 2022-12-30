@@ -44,14 +44,12 @@ func CreateServer(router *gin.Engine, mainDirectory string) *Server {
 
 func (s *Server) Run(addr string) {
 	server := endless.NewServer(addr, s.Router)
-	server.SignalHooks[endless.POST_SIGNAL][syscall.SIGINT] = append(
-		server.SignalHooks[endless.POST_SIGNAL][syscall.SIGINT],
-		s.onShutdown,
-	)
-	server.SignalHooks[endless.POST_SIGNAL][syscall.SIGTERM] = append(
-		server.SignalHooks[endless.POST_SIGNAL][syscall.SIGTERM],
-		s.onShutdown,
-	)
+	server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGINT] = append(
+		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGINT],
+		s.onShutdown)
+	server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGTERM] = append(
+		server.SignalHooks[endless.PRE_SIGNAL][syscall.SIGTERM],
+		s.onShutdown)
 
 	server.ListenAndServe()
 }
