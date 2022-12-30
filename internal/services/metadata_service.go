@@ -11,13 +11,13 @@ import (
 
 type MetadataService struct {
 	MetadataBroker *brokers.MetadataBroker
-	indexer        *query.Indexer
+	searchEngine   *query.SearchEngine
 }
 
-func CreateMetadataService(b *brokers.MetadataBroker) *MetadataService {
+func CreateMetadataService(mb *brokers.MetadataBroker, se *query.SearchEngine) *MetadataService {
 	return &MetadataService{
-		MetadataBroker: b,
-		indexer:        query.CreateIndexer(),
+		MetadataBroker: mb,
+		searchEngine:   se,
 	}
 }
 
@@ -35,7 +35,7 @@ func (ms *MetadataService) CreateMetadata(metadata *models.Metadata) *models.Met
 	}
 
 	// pre-process for searches, then create using broker
-	ms.indexer.IndexMetadata(metadataStore)
+	ms.searchEngine.IndexMetadata(metadataStore)
 	return ms.MetadataBroker.CreateMetadata(metadataStore)
 }
 
