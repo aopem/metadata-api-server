@@ -9,6 +9,19 @@ import (
 	"github.com/google/uuid"
 )
 
+func CreateFile(filepath string) *os.File {
+	if FileExists(filepath) {
+		return nil
+	}
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		panic(err)
+	}
+
+	return file
+}
+
 func ReadFile(filepath string) []byte {
 	if !FileExists(filepath) {
 		return nil

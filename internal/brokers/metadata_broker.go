@@ -10,7 +10,7 @@ import (
 )
 
 type MetadataBroker struct {
-	StorageDirectory string
+	storageDirectory string
 }
 
 func CreateMetadataBroker(mainDirectory string) *MetadataBroker {
@@ -22,7 +22,7 @@ func CreateMetadataBroker(mainDirectory string) *MetadataBroker {
 	}
 
 	return &MetadataBroker{
-		StorageDirectory: storageDirectory,
+		storageDirectory: storageDirectory,
 	}
 }
 
@@ -34,7 +34,7 @@ func (mb *MetadataBroker) CreateMetadata(metadataStore *models.MetadataStore) *m
 	}
 
 	// get filepath for saving data
-	metadataFilepath := filepath.Join(mb.StorageDirectory, metadataStore.Id+".yaml")
+	metadataFilepath := filepath.Join(mb.storageDirectory, metadataStore.Id+".yaml")
 
 	// write metadata to file
 	utils.WriteFile(metadataFilepath, writeData)
@@ -42,7 +42,7 @@ func (mb *MetadataBroker) CreateMetadata(metadataStore *models.MetadataStore) *m
 }
 
 func (mb *MetadataBroker) DeleteMetadataById(id string) *models.MetadataStore {
-	metadataFilepath := filepath.Join(mb.StorageDirectory, id+".yaml")
+	metadataFilepath := filepath.Join(mb.storageDirectory, id+".yaml")
 
 	// first, get object to return
 	metadataStore := mb.GetMetadataById(id)
@@ -57,7 +57,7 @@ func (mb *MetadataBroker) DeleteMetadataById(id string) *models.MetadataStore {
 }
 
 func (mb *MetadataBroker) GetMetadataById(id string) *models.MetadataStore {
-	metadataFilepath := filepath.Join(mb.StorageDirectory, id+".yaml")
+	metadataFilepath := filepath.Join(mb.storageDirectory, id+".yaml")
 	data := utils.ReadFile(metadataFilepath)
 
 	// read data into metadata object
@@ -71,11 +71,11 @@ func (mb *MetadataBroker) GetMetadataById(id string) *models.MetadataStore {
 }
 
 func (mb *MetadataBroker) GetMetadataList() []models.MetadataStore {
-	files := utils.GetFolderItems(mb.StorageDirectory)
+	files := utils.GetFolderItems(mb.storageDirectory)
 
 	metadataList := []models.MetadataStore{}
 	for _, file := range files {
-		metadataFilepath := filepath.Join(mb.StorageDirectory, file.Name())
+		metadataFilepath := filepath.Join(mb.storageDirectory, file.Name())
 
 		// read data for each file
 		data := utils.ReadFile(metadataFilepath)
