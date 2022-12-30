@@ -30,14 +30,6 @@ func (qc *QueryController) PutMetadataQuery(c *gin.Context) {
 	}
 
 	// get all matching metadata IDs
-	matchIds := qc.QueryService.ExecuteQuery(query)
-
-	// get actual metadata by ID and save in slice
-	queryResults := make([]models.MetadataStore, len(matchIds))
-	for i := range matchIds {
-		metadataStore := qc.MetadataService.GetMetadataById(matchIds[i])
-		queryResults[i] = *metadataStore
-	}
-
+	queryResults := qc.QueryService.ExecuteQuery(query)
 	c.YAML(http.StatusCreated, queryResults)
 }
