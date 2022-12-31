@@ -48,7 +48,7 @@ func CreateIndexBroker(mainDirectory string) *IndexBroker {
 		decoder.Decode(&indexData)
 	}
 
-	indexFile, err := os.OpenFile(indexPath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	indexFile, err := os.OpenFile(indexPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}

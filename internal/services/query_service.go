@@ -27,31 +27,33 @@ func (qs *QueryService) ExecuteQuery(query *models.Query) []string {
 	// which will contain ID of every document that
 	// has a partial or full text match to the query
 	if query.Title != "" {
-		qs.searchEngine.SearchMetadataField("Title", query.Title, matches)
+		// first search uses "OR" semantics since an "AND" search is limited
+		// by the content that is already present in the "matches" passed in
+		qs.searchEngine.MetadataFieldOrSearch("Title", query.Title, matches)
 	}
 	if query.Version != "" {
-		qs.searchEngine.SearchMetadataField("Version", query.Version, matches)
+		qs.searchEngine.MetadataFieldAndSearch("Version", query.Version, matches)
 	}
 	if query.MaintainerName != "" {
-		qs.searchEngine.SearchMetadataField("Name", query.MaintainerName, matches)
+		qs.searchEngine.MetadataFieldAndSearch("Name", query.MaintainerName, matches)
 	}
 	if query.MaintainerEmail != "" {
-		qs.searchEngine.SearchMetadataField("Email", query.MaintainerEmail, matches)
+		qs.searchEngine.MetadataFieldAndSearch("Email", query.MaintainerEmail, matches)
 	}
 	if query.Company != "" {
-		qs.searchEngine.SearchMetadataField("Company", query.Company, matches)
+		qs.searchEngine.MetadataFieldAndSearch("Company", query.Company, matches)
 	}
 	if query.Website != "" {
-		qs.searchEngine.SearchMetadataField("Website", query.Website, matches)
+		qs.searchEngine.MetadataFieldAndSearch("Website", query.Website, matches)
 	}
 	if query.Source != "" {
-		qs.searchEngine.SearchMetadataField("Source", query.Source, matches)
+		qs.searchEngine.MetadataFieldAndSearch("Source", query.Source, matches)
 	}
 	if query.License != "" {
-		qs.searchEngine.SearchMetadataField("License", query.License, matches)
+		qs.searchEngine.MetadataFieldAndSearch("License", query.License, matches)
 	}
 	if query.Description != "" {
-		qs.searchEngine.SearchMetadataField("Description", query.Description, matches)
+		qs.searchEngine.MetadataFieldAndSearch("Description", query.Description, matches)
 	}
 
 	// convert "matches" to a simple string slice
