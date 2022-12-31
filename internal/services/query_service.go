@@ -3,17 +3,16 @@ package services
 import (
 	"errors"
 	"log"
-	"metadata-api-server/internal/brokers"
-	"metadata-api-server/internal/query"
+	"metadata-api-server/internal/core"
 	"metadata-api-server/models"
 )
 
 type QueryService struct {
-	MetadataBroker *brokers.MetadataBroker
-	searchEngine   *query.SearchEngine
+	MetadataBroker core.MetadataBroker
+	searchEngine   core.SearchEngine
 }
 
-func CreateQueryService(mb *brokers.MetadataBroker, se *query.SearchEngine) *QueryService {
+func CreateQueryService(mb core.MetadataBroker, se core.SearchEngine) *QueryService {
 	return &QueryService{
 		MetadataBroker: mb,
 		searchEngine:   se,

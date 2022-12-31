@@ -2,16 +2,16 @@ package query
 
 import (
 	"log"
-	"metadata-api-server/internal/brokers"
+	"metadata-api-server/internal/core"
 	"metadata-api-server/models"
 	"strings"
 )
 
 type SearchEngine struct {
-	IndexBroker *brokers.IndexBroker
+	IndexBroker core.IndexBroker
 }
 
-func CreateSearchEngine(ib *brokers.IndexBroker) *SearchEngine {
+func CreateSearchEngine(ib core.IndexBroker) *SearchEngine {
 	return &SearchEngine{
 		IndexBroker: ib,
 	}

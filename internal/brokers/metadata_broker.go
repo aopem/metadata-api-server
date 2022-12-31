@@ -15,81 +15,88 @@ type MetadataBroker struct {
 
 func CreateMetadataBroker(mainDirectory string) *MetadataBroker {
 	storageDirectory := filepath.Join(mainDirectory, "localStore")
-
-	if err := os.MkdirAll(storageDirectory, os.ModePerm); err != nil {
-		// throw error
-		return nil
-	}
-
+	utils.CreateFolder(storageDirectory)
 	return &MetadataBroker{
 		storageDirectory: storageDirectory,
 	}
 }
 
-func (mb *MetadataBroker) CreateMetadata(metadataStore *models.MetadataStore) *models.MetadataStore {
+func (mb *MetadataBroker) CreateMetadata(metadataStore *models.MetadataStore) (*models.MetadataStore, error) {
 	// get YAML to write to file
 	writeData, err := yaml.Marshal(&metadataStore)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	// get filepath for saving data
 	metadataFilepath := filepath.Join(mb.storageDirectory, metadataStore.Id+".yaml")
 
 	// write metadata to file
-	utils.WriteFile(metadataFilepath, writeData)
-	return metadataStore
+	if err := utils.WriteFile(metadataFilepath, writeData); err != nil {
+		return nil, err
+	}
+
+	return metadataStore, nil
 }
 
-func (mb *MetadataBroker) DeleteMetadataById(id string) *models.MetadataStore {
+func (mb *MetadataBroker) DeleteMetadataById(id string) (*models.MetadataStore, error) {
 	metadataFilepath := filepath.Join(mb.storageDirectory, id+".yaml")
 
 	// first, get object to return
-	metadataStore := mb.GetMetadataById(id)
-
-	// then, delete file containing data
-	err := os.Remove(metadataFilepath)
+	metadataStore, err := mb.GetMetadataById(id)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return metadataStore
+	// then, delete file containing data
+	if err := os.Remove(metadataFilepath); err != nil {
+		return nil, err
+	}
+
+	return metadataStore, nil
 }
 
-func (mb *MetadataBroker) GetMetadataById(id string) *models.MetadataStore {
+func (mb *MetadataBroker) GetMetadataById(id string) (*models.MetadataStore, error) {
 	metadataFilepath := filepath.Join(mb.storageDirectory, id+".yaml")
-	data := utils.ReadFile(metadataFilepath)
+	data, err := utils.ReadFile(metadataFilepath)
+	if err != nil {
+		return nil, err
+	}
 
 	// read data into metadata object
 	metadataStore := &models.MetadataStore{}
-	err := yaml.Unmarshal(data, metadataStore)
-	if err != nil {
-		return nil
+	if err := yaml.Unmarshal(data, metadataStore); err != nil {
+		return nil, err
 	}
 
-	return metadataStore
+	return metadataStore, nil
 }
 
-func (mb *MetadataBroker) GetMetadataList() []models.MetadataStore {
-	files := utils.GetFolderItems(mb.storageDirectory)
+func (mb *MetadataBroker) GetMetadataList() ([]models.MetadataStore, error) {
+	files, err := utils.GetFolderItems(mb.storageDirectory)
+	if err != nil {
+		return nil, err
+	}
 
 	metadataList := []models.MetadataStore{}
 	for _, file := range files {
 		metadataFilepath := filepath.Join(mb.storageDirectory, file.Name())
 
 		// read data for each file
-		data := utils.ReadFile(metadataFilepath)
+		data, err := utils.ReadFile(metadataFilepath)
+		if err != nil {
+			return nil, err
+		}
 
 		// then, move to struct
 		metadataStore := &models.MetadataStore{}
-		err := yaml.Unmarshal(data, metadataStore)
-		if err != nil {
-			return nil
+		if err := yaml.Unmarshal(data, metadataStore); err != nil {
+			return nil, err
 		}
 
 		// lastly, add to list
 		metadataList = append(metadataList, *metadataStore)
 	}
 
-	return metadataList
+	return metadataList, nil
 }

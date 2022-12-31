@@ -1,7 +1,8 @@
 package controllers
 
 import (
-	"metadata-api-server/internal/services"
+	"log"
+	"metadata-api-server/internal/core"
 	"metadata-api-server/models"
 	"net/http"
 
@@ -9,10 +10,10 @@ import (
 )
 
 type MetadataController struct {
-	MetadataService *services.MetadataService
+	MetadataService core.MetadataService
 }
 
-func CreateMetadataController(ms *services.MetadataService) *MetadataController {
+func CreateMetadataController(ms core.MetadataService) *MetadataController {
 	return &MetadataController{
 		MetadataService: ms,
 	}
@@ -20,28 +21,90 @@ func CreateMetadataController(ms *services.MetadataService) *MetadataController 
 
 func (mc *MetadataController) PutMetadata(c *gin.Context) {
 	metadata := &models.Metadata{}
+	response := models.Response{
+		StatusCode: http.StatusCreated,
+		Data:       nil,
+		Errors:     nil,
+	}
 
 	// validate metadata payload
 	if err := c.BindYAML(metadata); err != nil {
-		c.YAML(http.StatusBadRequest, nil)
+		response.StatusCode = http.StatusBadRequest
+		response.Errors = append(response.Errors, err.Error())
+		log.Printf("[ERROR] %s", err.Error())
+		c.YAML(response.StatusCode, response)
 		return
 	}
 
-	responseMetadata := mc.MetadataService.CreateMetadata(metadata)
-	c.YAML(http.StatusCreated, responseMetadata)
+	createdMetadata, err := mc.MetadataService.CreateMetadata(metadata)
+	if err != nil {
+		response.StatusCode = http.StatusBadRequest
+		response.Errors = append(response.Errors, err.Error())
+		log.Printf("[ERROR] %s", err.Error())
+		c.YAML(response.StatusCode, response)
+		return
+	}
+
+	response.Data = createdMetadata
+	c.YAML(response.StatusCode, response)
 }
 
 func (mc *MetadataController) DeleteMetadataById(c *gin.Context) {
-	responseMetadata := mc.MetadataService.DeleteMetadataById(c.Param("id"))
-	c.YAML(http.StatusGone, responseMetadata)
+	response := models.Response{
+		StatusCode: http.StatusGone,
+		Data:       nil,
+		Errors:     nil,
+	}
+
+	deletedMetadata, err := mc.MetadataService.DeleteMetadataById(c.Param("id"))
+	if err != nil {
+		response.StatusCode = http.StatusBadRequest
+		response.Errors = append(response.Errors, err.Error())
+		log.Printf("[ERROR] %s", err.Error())
+		c.YAML(response.StatusCode, response)
+		return
+	}
+
+	response.Data = deletedMetadata
+	c.YAML(response.StatusCode, response)
 }
 
 func (mc *MetadataController) GetMetadataById(c *gin.Context) {
-	responseMetadata := mc.MetadataService.GetMetadataById(c.Param("id"))
-	c.YAML(http.StatusOK, responseMetadata)
+	response := models.Response{
+		StatusCode: http.StatusOK,
+		Data:       nil,
+		Errors:     nil,
+	}
+
+	metadata, err := mc.MetadataService.GetMetadataById(c.Param("id"))
+	if err != nil {
+		response.StatusCode = http.StatusBadRequest
+		response.Errors = append(response.Errors, err.Error())
+		log.Printf("[ERROR] %s", err.Error())
+		c.YAML(response.StatusCode, response)
+		return
+	}
+
+	response.Data = metadata
+	c.YAML(response.StatusCode, response)
 }
 
 func (mc *MetadataController) GetMetadata(c *gin.Context) {
-	responseMetadata := mc.MetadataService.GetMetadata()
-	c.YAML(http.StatusOK, responseMetadata)
+	response := models.Response{
+		StatusCode: http.StatusOK,
+		Data:       nil,
+		Errors:     nil,
+	}
+
+	metadataList, err := mc.MetadataService.GetMetadata()
+	if err != nil {
+		response.StatusCode = http.StatusBadRequest
+		response.Errors = append(response.Errors, err.Error())
+		log.Printf("[ERROR] %s", err.Error())
+		c.YAML(response.StatusCode, response)
+		return
+	}
+
+	response.Data = metadataList
+	c.YAML(response.StatusCode, response)
 }

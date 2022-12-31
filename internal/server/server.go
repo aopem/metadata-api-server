@@ -4,6 +4,7 @@ import (
 	"log"
 	"metadata-api-server/internal/brokers"
 	"metadata-api-server/internal/controllers"
+	"metadata-api-server/internal/core"
 	"metadata-api-server/internal/query"
 	"metadata-api-server/internal/services"
 	"syscall"
@@ -14,9 +15,9 @@ import (
 
 type Server struct {
 	Router             *gin.Engine
-	MetadataController *controllers.MetadataController
-	QueryController    *controllers.QueryController
-	indexBroker        *brokers.IndexBroker
+	MetadataController core.MetadataController
+	QueryController    core.QueryController
+	indexBroker        core.IndexBroker
 }
 
 func CreateServer(router *gin.Engine, mainDirectory string) *Server {
@@ -70,5 +71,8 @@ func (s *Server) route() {
 
 func (s *Server) onShutdown() {
 	log.Print("Saving index data...")
-	s.indexBroker.SaveIndex()
+	if err := s.indexBroker.SaveIndex(); err != nil {
+		log.Print("[FATAL ERROR] Could not save index on server shutdown")
+		log.Printf("[FATAL ERROR] %s", err.Error())
+	}
 }

@@ -11,7 +11,6 @@ import (
 type IndexBroker struct {
 	indexData map[string]map[string][]string
 	indexPath string
-	indexFile *os.File
 }
 
 func CreateIndexBroker(mainDirectory string) *IndexBroker {
@@ -39,33 +38,19 @@ func CreateIndexBroker(mainDirectory string) *IndexBroker {
 
 		// create a local store for the index
 		log.Print("Creating new local index...")
-		if err := os.MkdirAll(filepath.Dir(indexPath), os.ModePerm); err != nil {
-			// throw error
-			return nil
-		}
+		utils.CreateFolder(filepath.Dir(indexPath))
 		utils.CreateFile(indexPath)
 	} else {
+		// decode existing file data
 		log.Print("Local index already exists, loading...")
-
-		indexFile, err := os.Open(indexPath)
-		if err != nil {
-			panic(err)
-		}
-
-		// otherwise, decode existing file data
+		indexFile := utils.OpenFile(indexPath, 0, os.ModePerm)
 		decoder := gob.NewDecoder(indexFile)
 		decoder.Decode(&indexData)
-	}
-
-	indexFile, err := os.OpenFile(indexPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		panic(err)
 	}
 
 	return &IndexBroker{
 		indexData: indexData,
 		indexPath: indexPath,
-		indexFile: indexFile,
 	}
 }
 
@@ -73,11 +58,15 @@ func (ib *IndexBroker) GetIndex() map[string]map[string][]string {
 	return ib.indexData
 }
 
-func (ib *IndexBroker) SaveIndex() {
+func (ib *IndexBroker) SaveIndex() error {
 	log.Printf("Saving local index at %s...", ib.indexPath)
-	encoder := gob.NewEncoder(ib.indexFile)
-	err := encoder.Encode(ib.indexData)
-	if err != nil {
-		panic(err)
+
+	// open file, then encode/save ib.indexData to the file
+	indexFile := utils.OpenFile(ib.indexPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	encoder := gob.NewEncoder(indexFile)
+	if err := encoder.Encode(ib.indexData); err != nil {
+		return err
 	}
+
+	return nil
 }

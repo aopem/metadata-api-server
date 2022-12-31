@@ -7,12 +7,8 @@ import (
 	"os"
 )
 
-func CreateFile(filepath string) *os.File {
-	if FileExists(filepath) {
-		return nil
-	}
-
-	file, err := os.Create(filepath)
+func OpenFile(filepath string, flags int, mode fs.FileMode) *os.File {
+	file, err := os.OpenFile(filepath, flags, mode)
 	if err != nil {
 		panic(err)
 	}
@@ -20,34 +16,26 @@ func CreateFile(filepath string) *os.File {
 	return file
 }
 
-func ReadFile(filepath string) []byte {
-	if !FileExists(filepath) {
-		return nil
+func CreateFile(filepath string) (*os.File, error) {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return nil, err
 	}
 
+	return file, nil
+}
+
+func ReadFile(filepath string) ([]byte, error) {
 	data, err := os.ReadFile(filepath)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return data
+	return data, nil
 }
 
-func WriteFile(filepath string, data []byte) {
-	err := os.WriteFile(filepath, data, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func FileExists(filepath string) bool {
-	info, err := os.Stat(filepath)
-
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	return !info.IsDir()
+func WriteFile(filepath string, data []byte) error {
+	return os.WriteFile(filepath, data, os.ModePerm)
 }
 
 func FileEmpty(filepath string) bool {
@@ -63,19 +51,23 @@ func FileEmpty(filepath string) bool {
 	return info.Size() == 0
 }
 
-func GetFolderItems(folderpath string) []fs.DirEntry {
-	dir, err := os.Open(folderpath)
-	if err != nil {
-		return nil
+func FileExists(filepath string) bool {
+	info, err := os.Stat(filepath)
+	if os.IsNotExist(err) {
+		return false
 	}
 
-	files, err := dir.ReadDir(0)
-	return files
+	return !info.IsDir()
+}
+
+func CreateFolder(folderpath string) {
+	if err := os.MkdirAll(folderpath, os.ModePerm); err != nil {
+		panic(err)
+	}
 }
 
 func FolderExists(folderpath string) bool {
 	info, err := os.Stat(folderpath)
-
 	if os.IsNotExist(err) {
 		return false
 	}
@@ -83,14 +75,22 @@ func FolderExists(folderpath string) bool {
 	return info.IsDir()
 }
 
-func CalculateHash(data []byte) string {
-	hasher := sha256.New()
-
-	_, err := hasher.Write(data)
+func GetFolderItems(folderpath string) ([]fs.DirEntry, error) {
+	dir, err := os.Open(folderpath)
 	if err != nil {
-		// TODO: throw error
-		return ""
+		return nil, err
 	}
 
-	return hex.EncodeToString(hasher.Sum(nil))[:8]
+	files, err := dir.ReadDir(0)
+	return files, err
+}
+
+func CalculateHash(data []byte) (string, error) {
+	hasher := sha256.New()
+	_, err := hasher.Write(data)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(hasher.Sum(nil))[:8], nil
 }

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"log"
-	"metadata-api-server/internal/services"
+	"metadata-api-server/internal/core"
 	"metadata-api-server/models"
 	"net/http"
 
@@ -10,11 +10,11 @@ import (
 )
 
 type QueryController struct {
-	QueryService    *services.QueryService
-	MetadataService *services.MetadataService
+	QueryService    core.QueryService
+	MetadataService core.MetadataService
 }
 
-func CreateQueryController(qs *services.QueryService, ms *services.MetadataService) *QueryController {
+func CreateQueryController(qs core.QueryService, ms core.MetadataService) *QueryController {
 	return &QueryController{
 		QueryService:    qs,
 		MetadataService: ms,
@@ -34,6 +34,8 @@ func (qc *QueryController) PutMetadataQuery(c *gin.Context) {
 		response.StatusCode = http.StatusBadRequest
 		response.Errors = append(response.Errors, err.Error())
 		log.Printf("[ERROR] %s", err.Error())
+		c.YAML(response.StatusCode, response)
+		return
 	}
 
 	// get all matching metadata IDs
@@ -42,6 +44,8 @@ func (qc *QueryController) PutMetadataQuery(c *gin.Context) {
 		response.StatusCode = http.StatusBadRequest
 		response.Errors = append(response.Errors, err.Error())
 		log.Printf("[ERROR] %s", err.Error())
+		c.YAML(response.StatusCode, response)
+		return
 	}
 
 	response.Data = queryResults
