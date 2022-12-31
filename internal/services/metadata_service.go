@@ -1,10 +1,13 @@
 package services
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"metadata-api-server/internal/core"
 	"metadata-api-server/internal/utils"
 	"metadata-api-server/models"
+	"regexp"
 
 	"gopkg.in/yaml.v2"
 )
@@ -47,14 +50,21 @@ func (ms *MetadataService) CreateMetadata(metadata *models.Metadata) (*models.Me
 }
 
 func (ms *MetadataService) DeleteMetadataById(id string) (*models.MetadataStore, error) {
-	log.Printf("Deleting Metadata ID \"%s\"...", id)
+	if err := ms.validateId(id); err != nil {
+		return nil, err
+	}
 
 	// delete from index, then delete from local store
+	log.Printf("Deleting Metadata ID \"%s\"...", id)
 	ms.searchEngine.DeleteMetadataIndexById(id)
 	return ms.MetadataBroker.DeleteMetadataById(id)
 }
 
 func (ms *MetadataService) GetMetadataById(id string) (*models.MetadataStore, error) {
+	if err := ms.validateId(id); err != nil {
+		return nil, err
+	}
+
 	log.Printf("Retrieving Metadata ID \"%s\"...", id)
 	return ms.MetadataBroker.GetMetadataById(id)
 }
@@ -62,4 +72,13 @@ func (ms *MetadataService) GetMetadataById(id string) (*models.MetadataStore, er
 func (ms *MetadataService) GetMetadata() ([]models.MetadataStore, error) {
 	log.Print("Retrieving all Metadata...")
 	return ms.MetadataBroker.GetMetadataList()
+}
+
+func (ms *MetadataService) validateId(id string) error {
+	regexp.MustCompile("[a-zA-Z0-9]")
+	if len(id) != 8 {
+		return errors.New(fmt.Sprintf("Invalid ID \"%s\" - must be exactly 8 alphanumeric characters", id))
+	}
+
+	return nil
 }
