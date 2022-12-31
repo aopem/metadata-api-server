@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"log"
 	"metadata-api-server/internal/brokers"
 	"metadata-api-server/internal/query"
@@ -19,7 +20,11 @@ func CreateQueryService(mb *brokers.MetadataBroker, se *query.SearchEngine) *Que
 	}
 }
 
-func (qs *QueryService) ExecuteQuery(query *models.Query) []string {
+func (qs *QueryService) ExecuteQuery(query *models.Query) ([]string, error) {
+	if err := qs.validateQuery(query); err != nil {
+		return nil, err
+	}
+
 	log.Print("Executing query:")
 	log.Printf("%+v", *query)
 
@@ -68,5 +73,21 @@ func (qs *QueryService) ExecuteQuery(query *models.Query) []string {
 
 	log.Print("Matching IDs found for query:")
 	log.Print(matchIds)
-	return matchIds
+	return matchIds, nil
+}
+
+func (qs *QueryService) validateQuery(query *models.Query) error {
+	if query.Title == "" &&
+		query.Version == "" &&
+		query.MaintainerName == "" &&
+		query.MaintainerEmail == "" &&
+		query.Company == "" &&
+		query.Website == "" &&
+		query.Source == "" &&
+		query.License == "" &&
+		query.Description == "" {
+		return errors.New("All query fields are empty")
+	}
+
+	return nil
 }
