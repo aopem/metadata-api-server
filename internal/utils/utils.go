@@ -5,8 +5,6 @@ import (
 	"encoding/hex"
 	"io/fs"
 	"os"
-
-	"github.com/google/uuid"
 )
 
 func CreateFile(filepath string) *os.File {
@@ -83,10 +81,6 @@ func FolderExists(folderpath string) bool {
 	}
 
 	return info.IsDir()
-}
-
-func GetUUID() string {
-	return uuid.New().String()
 }
 
 func CalculateHash(data []byte) string {
