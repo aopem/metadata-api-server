@@ -1,6 +1,7 @@
 package services
 
 import (
+	"log"
 	"metadata-api-server/internal/brokers"
 	"metadata-api-server/internal/query"
 	"metadata-api-server/models"
@@ -19,6 +20,9 @@ func CreateQueryService(mb *brokers.MetadataBroker, se *query.SearchEngine) *Que
 }
 
 func (qs *QueryService) ExecuteQuery(query *models.Query) []string {
+	log.Print("Executing query:")
+	log.Printf("%+v", *query)
+
 	// uses "matches" as a "set" to store results of a search
 	matches := map[string]bool{}
 
@@ -62,5 +66,7 @@ func (qs *QueryService) ExecuteQuery(query *models.Query) []string {
 		matchIds = append(matchIds, id)
 	}
 
+	log.Print("Matching IDs found for query:")
+	log.Print(matchIds)
 	return matchIds
 }

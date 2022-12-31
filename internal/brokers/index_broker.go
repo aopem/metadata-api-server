@@ -2,6 +2,7 @@ package brokers
 
 import (
 	"encoding/gob"
+	"log"
 	"metadata-api-server/internal/utils"
 	"os"
 	"path/filepath"
@@ -15,11 +16,16 @@ type IndexBroker struct {
 
 func CreateIndexBroker(mainDirectory string) *IndexBroker {
 	indexPath := filepath.Join(mainDirectory, "localIndex", "index.gob")
+	log.Printf("Local index will be stored at %s", indexPath)
+
+	// initialize index map
 	indexData := map[string]map[string][]string{}
 
 	// if index file does not already exist,
 	// then initialize all necessary attributes
 	if !utils.FileExists(indexPath) || utils.FileEmpty(indexPath) {
+		log.Print("Local index either does not exist or is empty")
+
 		// initialize index map
 		indexData["Title"] = map[string][]string{}
 		indexData["Version"] = map[string][]string{}
@@ -32,12 +38,15 @@ func CreateIndexBroker(mainDirectory string) *IndexBroker {
 		indexData["Name"] = map[string][]string{}
 
 		// create a local store for the index
+		log.Print("Creating new local index...")
 		if err := os.MkdirAll(filepath.Dir(indexPath), os.ModePerm); err != nil {
 			// throw error
 			return nil
 		}
 		utils.CreateFile(indexPath)
 	} else {
+		log.Print("Local index already exists, loading...")
+
 		indexFile, err := os.Open(indexPath)
 		if err != nil {
 			panic(err)
@@ -65,6 +74,7 @@ func (ib *IndexBroker) GetIndex() map[string]map[string][]string {
 }
 
 func (ib *IndexBroker) SaveIndex() {
+	log.Printf("Saving local index at %s...", ib.indexPath)
 	encoder := gob.NewEncoder(ib.indexFile)
 	err := encoder.Encode(ib.indexData)
 	if err != nil {

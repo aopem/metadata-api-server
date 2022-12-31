@@ -1,6 +1,7 @@
 package query
 
 import (
+	"log"
 	"metadata-api-server/internal/brokers"
 	"metadata-api-server/models"
 	"strings"
@@ -17,6 +18,8 @@ func CreateSearchEngine(ib *brokers.IndexBroker) *SearchEngine {
 }
 
 func (se *SearchEngine) MetadataFieldOrSearch(field string, searchText string, matches map[string]bool) {
+	log.Printf("Searching Metadata field \"%s\" for text \"%s\"", field, searchText)
+
 	// search index[field] for any text that matches
 	// the given searchText. Any matches are added to the
 	// "matches" set
@@ -49,11 +52,12 @@ func (se *SearchEngine) MetadataFieldAndSearch(field string, searchText string, 
 	}
 }
 
-func (se *SearchEngine) IndexMetadata(metadataStore *models.MetadataStore) {
+func (se *SearchEngine) CreateMetadataIndex(metadataStore *models.MetadataStore) {
 	id := metadataStore.Id
 	metadata := metadataStore.Metadata
 
 	// save all metadata in index
+	log.Print("Indexing Metadata...")
 	se.indexField("Title", strings.ToLower(metadata.Title), id)
 	se.indexField("Version", strings.ToLower(metadata.Version), id)
 	se.indexField("Company", strings.ToLower(metadata.Company), id)
@@ -69,7 +73,24 @@ func (se *SearchEngine) IndexMetadata(metadataStore *models.MetadataStore) {
 	}
 }
 
+func (se *SearchEngine) DeleteMetadataIndexById(id string) {
+	log.Printf("Deleting indexes for Metadata ID \"%s\"...", id)
+	index := se.IndexBroker.GetIndex()
+	for field, fieldDataMap := range index {
+		for fieldData, idList := range fieldDataMap {
+			for i := len(idList) - 1; i >= 0; i-- {
+				if idList[i] == id {
+					index[field][fieldData] = append(
+						index[field][fieldData][:i],
+						index[field][fieldData][i+1:]...)
+				}
+			}
+		}
+	}
+}
+
 func (se *SearchEngine) indexField(field string, fieldData string, id string) {
+	log.Printf("Indexing field \"%s\" for ID \"%s\"...", field, id)
 	index := se.IndexBroker.GetIndex()
 	for i := range index[field][fieldData] {
 		if index[field][fieldData][i] == id {
@@ -78,4 +99,5 @@ func (se *SearchEngine) indexField(field string, fieldData string, id string) {
 	}
 
 	index[field][fieldData] = append(index[field][fieldData], id)
+	log.Printf("Added index for Metadata ID \"%s\" successfully", id)
 }

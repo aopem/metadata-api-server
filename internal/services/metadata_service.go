@@ -1,6 +1,7 @@
 package services
 
 import (
+	"log"
 	"metadata-api-server/internal/brokers"
 	"metadata-api-server/internal/query"
 	"metadata-api-server/internal/utils"
@@ -35,18 +36,26 @@ func (ms *MetadataService) CreateMetadata(metadata *models.Metadata) *models.Met
 	}
 
 	// pre-process for searches, then create using broker
-	ms.searchEngine.IndexMetadata(metadataStore)
+	ms.searchEngine.CreateMetadataIndex(metadataStore)
+
+	log.Printf("Creating Metadata ID \"%s\"...", metadataStore.Id)
 	return ms.MetadataBroker.CreateMetadata(metadataStore)
 }
 
 func (ms *MetadataService) DeleteMetadataById(id string) *models.MetadataStore {
+	log.Printf("Deleting Metadata ID \"%s\"...", id)
+
+	// delete from index, then delete from local store
+	ms.searchEngine.DeleteMetadataIndexById(id)
 	return ms.MetadataBroker.DeleteMetadataById(id)
 }
 
 func (ms *MetadataService) GetMetadataById(id string) *models.MetadataStore {
+	log.Printf("Retrieving Metadata ID \"%s\"...", id)
 	return ms.MetadataBroker.GetMetadataById(id)
 }
 
 func (ms *MetadataService) GetMetadata() []models.MetadataStore {
+	log.Print("Retrieving all Metadata...")
 	return ms.MetadataBroker.GetMetadataList()
 }

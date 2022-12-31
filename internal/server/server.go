@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"metadata-api-server/internal/brokers"
 	"metadata-api-server/internal/controllers"
 	"metadata-api-server/internal/query"
@@ -38,6 +39,8 @@ func CreateServer(router *gin.Engine, mainDirectory string) *Server {
 		QueryController:    qc,
 		indexBroker:        ib,
 	}
+
+	log.Print("Routing server endpoints...")
 	s.route()
 	return s
 }
@@ -66,5 +69,6 @@ func (s *Server) route() {
 }
 
 func (s *Server) onShutdown() {
+	log.Print("Saving index data...")
 	s.indexBroker.SaveIndex()
 }
