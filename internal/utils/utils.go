@@ -38,6 +38,10 @@ func CreateFile(filepath string) (*os.File, error) {
 	return file, nil
 }
 
+func DeleteFile(filepath string) error {
+	return os.Remove(filepath)
+}
+
 func ReadFile(filepath string) ([]byte, error) {
 	data, err := os.ReadFile(filepath)
 	if err != nil {
@@ -77,6 +81,10 @@ func CreateFolder(folderpath string) {
 	if err := os.MkdirAll(folderpath, os.ModePerm); err != nil {
 		panic(err)
 	}
+}
+
+func DeleteFolder(folderpath string) error {
+	return os.RemoveAll(folderpath)
 }
 
 func FolderExists(folderpath string) bool {

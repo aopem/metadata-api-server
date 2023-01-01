@@ -7,6 +7,8 @@ import (
 	"metadata-api-server/internal/core"
 	"metadata-api-server/internal/query"
 	"metadata-api-server/internal/services"
+	"metadata-api-server/internal/utils"
+	"path/filepath"
 	"syscall"
 
 	"github.com/fvbock/endless"
@@ -22,11 +24,12 @@ type Server struct {
 }
 
 func CreateServer(router *gin.Engine) *Server {
-	ib := brokers.CreateIndexBroker()
+	rootDirectory := utils.MainDirectory()
+	ib := brokers.CreateIndexBroker(filepath.Join(rootDirectory, "localIndex"))
 	se := query.CreateSearchEngine(ib)
 
 	// create metadata dependencies
-	mb := brokers.CreateMetadataBroker()
+	mb := brokers.CreateMetadataBroker(filepath.Join(rootDirectory, "localStore"))
 	ms := services.CreateMetadataService(mb, ib)
 	mc := controllers.CreateMetadataController(ms)
 

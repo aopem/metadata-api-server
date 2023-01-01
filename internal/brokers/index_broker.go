@@ -15,8 +15,8 @@ type IndexBroker struct {
 	indexPath string
 }
 
-func CreateIndexBroker() *IndexBroker {
-	indexPath := filepath.Join(utils.MainDirectory(), "localIndex", "index.gob")
+func CreateIndexBroker(rootDirectory string) *IndexBroker {
+	indexPath := filepath.Join(rootDirectory, "index.gob")
 	log.Printf("Local index will be stored at %s", indexPath)
 
 	// initialize index map
@@ -94,6 +94,10 @@ func (ib *IndexBroker) DeleteIndexById(id string) {
 
 func (ib *IndexBroker) GetIndex() map[string]map[string][]string {
 	return ib.indexData
+}
+
+func (ib *IndexBroker) GetIndexPath() string {
+	return ib.indexPath
 }
 
 func (ib *IndexBroker) SaveIndex() error {

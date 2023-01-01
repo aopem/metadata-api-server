@@ -3,7 +3,6 @@ package brokers
 import (
 	"metadata-api-server/internal/utils"
 	"metadata-api-server/models"
-	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
@@ -13,8 +12,7 @@ type MetadataBroker struct {
 	storageDirectory string
 }
 
-func CreateMetadataBroker() *MetadataBroker {
-	storageDirectory := filepath.Join(utils.MainDirectory(), "localStore")
+func CreateMetadataBroker(storageDirectory string) *MetadataBroker {
 	utils.CreateFolder(storageDirectory)
 	return &MetadataBroker{
 		storageDirectory: storageDirectory,
@@ -49,7 +47,7 @@ func (mb *MetadataBroker) DeleteMetadataById(id string) (*models.MetadataStore, 
 	}
 
 	// then, delete file containing data
-	if err := os.Remove(metadataFilepath); err != nil {
+	if err := utils.DeleteFile(metadataFilepath); err != nil {
 		return nil, err
 	}
 
@@ -99,4 +97,8 @@ func (mb *MetadataBroker) GetMetadataList() ([]models.MetadataStore, error) {
 	}
 
 	return metadataList, nil
+}
+
+func (mb *MetadataBroker) GetStorageDirectory() string {
+	return mb.storageDirectory
 }

@@ -11,6 +11,7 @@ type MetadataBroker interface {
 	DeleteMetadataById(id string) (*models.MetadataStore, error)
 	GetMetadataById(id string) (*models.MetadataStore, error)
 	GetMetadataList() ([]models.MetadataStore, error)
+	GetStorageDirectory() string
 }
 
 type MetadataService interface {
@@ -39,6 +40,7 @@ type IndexBroker interface {
 	CreateIndex(metadataStore *models.MetadataStore)
 	DeleteIndexById(id string)
 	GetIndex() map[string]map[string][]string
+	GetIndexPath() string
 	SaveIndex() error
 	IndexEmpty() bool
 }
