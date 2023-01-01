@@ -7,6 +7,7 @@ import (
 	"metadata-api-server/internal/core"
 	"metadata-api-server/internal/query"
 	"metadata-api-server/internal/services"
+	"metadata-api-server/internal/utils"
 	"syscall"
 
 	"github.com/fvbock/endless"
@@ -21,7 +22,8 @@ type Server struct {
 	indexBroker        core.IndexBroker
 }
 
-func CreateServer(router *gin.Engine, mainDirectory string) *Server {
+func CreateServer(router *gin.Engine) *Server {
+	mainDirectory := utils.MainDirectory()
 	ib := brokers.CreateIndexBroker(mainDirectory)
 	se := query.CreateSearchEngine(ib)
 

@@ -4,8 +4,21 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"io/fs"
+	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 )
+
+func MainDirectory() string {
+	_, filename, _, ok := runtime.Caller(0)
+
+	if !ok {
+		log.Fatal("[ERROR] Could not retrieve main.go directory")
+	}
+
+	return filepath.Dir(filepath.Dir(filepath.Dir(filename)))
+}
 
 func OpenFile(filepath string, flags int, mode fs.FileMode) *os.File {
 	file, err := os.OpenFile(filepath, flags, mode)
