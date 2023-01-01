@@ -15,8 +15,8 @@ type IndexBroker struct {
 	indexPath string
 }
 
-func CreateIndexBroker(mainDirectory string) *IndexBroker {
-	indexPath := filepath.Join(mainDirectory, "localIndex", "index.gob")
+func CreateIndexBroker() *IndexBroker {
+	indexPath := filepath.Join(utils.MainDirectory(), "localIndex", "index.gob")
 	log.Printf("Local index will be stored at %s", indexPath)
 
 	// initialize index map

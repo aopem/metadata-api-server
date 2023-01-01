@@ -13,8 +13,8 @@ type MetadataBroker struct {
 	storageDirectory string
 }
 
-func CreateMetadataBroker(mainDirectory string) *MetadataBroker {
-	storageDirectory := filepath.Join(mainDirectory, "localStore")
+func CreateMetadataBroker() *MetadataBroker {
+	storageDirectory := filepath.Join(utils.MainDirectory(), "localStore")
 	utils.CreateFolder(storageDirectory)
 	return &MetadataBroker{
 		storageDirectory: storageDirectory,
