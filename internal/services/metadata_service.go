@@ -14,13 +14,13 @@ import (
 
 type MetadataService struct {
 	MetadataBroker core.MetadataBroker
-	searchEngine   core.SearchEngine
+	indexBroker    core.IndexBroker
 }
 
-func CreateMetadataService(mb core.MetadataBroker, se core.SearchEngine) *MetadataService {
+func CreateMetadataService(mb core.MetadataBroker, ib core.IndexBroker) *MetadataService {
 	return &MetadataService{
 		MetadataBroker: mb,
-		searchEngine:   se,
+		indexBroker:    ib,
 	}
 }
 
@@ -43,7 +43,7 @@ func (ms *MetadataService) CreateMetadata(metadata *models.Metadata) (*models.Me
 	}
 
 	// pre-process for searches, then create using broker
-	ms.searchEngine.CreateMetadataIndex(metadataStore)
+	ms.indexBroker.CreateIndex(metadataStore)
 
 	log.Printf("Creating Metadata ID \"%s\"...", metadataStore.Id)
 	return ms.MetadataBroker.CreateMetadata(metadataStore)
@@ -56,7 +56,7 @@ func (ms *MetadataService) DeleteMetadataById(id string) (*models.MetadataStore,
 
 	// delete from index, then delete from local store
 	log.Printf("Deleting Metadata ID \"%s\"...", id)
-	ms.searchEngine.DeleteMetadataIndexById(id)
+	ms.indexBroker.DeleteIndexById(id)
 	return ms.MetadataBroker.DeleteMetadataById(id)
 }
 

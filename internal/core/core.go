@@ -36,15 +36,16 @@ type QueryController interface {
 }
 
 type IndexBroker interface {
+	CreateIndex(metadataStore *models.MetadataStore)
+	DeleteIndexById(id string)
 	GetIndex() map[string]map[string][]string
 	SaveIndex() error
+	IndexEmpty() bool
 }
 
 type SearchEngine interface {
 	MetadataFieldOrSearch(field string, searchText string, matches map[string]bool)
 	MetadataFieldAndSearch(field string, searchText string, matches map[string]bool)
-	CreateMetadataIndex(metadataStore *models.MetadataStore)
-	DeleteMetadataIndexById(id string)
 }
 
 type Server interface {

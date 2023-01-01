@@ -4,8 +4,10 @@ import (
 	"encoding/gob"
 	"log"
 	"metadata-api-server/internal/utils"
+	"metadata-api-server/models"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type IndexBroker struct {
@@ -54,6 +56,42 @@ func CreateIndexBroker(mainDirectory string) *IndexBroker {
 	}
 }
 
+func (ib *IndexBroker) CreateIndex(metadataStore *models.MetadataStore) {
+	id := metadataStore.Id
+	metadata := metadataStore.Metadata
+
+	// save all metadata in index
+	log.Print("Indexing Metadata...")
+	ib.indexField("Title", strings.ToLower(metadata.Title), id)
+	ib.indexField("Version", strings.ToLower(metadata.Version), id)
+	ib.indexField("Company", strings.ToLower(metadata.Company), id)
+	ib.indexField("Website", strings.ToLower(metadata.Website), id)
+	ib.indexField("Source", strings.ToLower(metadata.Source), id)
+	ib.indexField("License", strings.ToLower(metadata.License), id)
+	ib.indexField("Description", strings.ToLower(metadata.Description), id)
+
+	// index all maintainer data
+	for _, maintainer := range metadata.Maintainers {
+		ib.indexField("Email", strings.ToLower(maintainer.Email), id)
+		ib.indexField("Name", strings.ToLower(maintainer.Name), id)
+	}
+}
+
+func (ib *IndexBroker) DeleteIndexById(id string) {
+	log.Printf("Deleting indexes for Metadata ID \"%s\"...", id)
+	for field, fieldDataMap := range ib.indexData {
+		for fieldData, idList := range fieldDataMap {
+			for i := len(idList) - 1; i >= 0; i-- {
+				if idList[i] == id {
+					ib.indexData[field][fieldData] = append(
+						ib.indexData[field][fieldData][:i],
+						ib.indexData[field][fieldData][i+1:]...)
+				}
+			}
+		}
+	}
+}
+
 func (ib *IndexBroker) GetIndex() map[string]map[string][]string {
 	return ib.indexData
 }
@@ -69,4 +107,29 @@ func (ib *IndexBroker) SaveIndex() error {
 	}
 
 	return nil
+}
+
+func (ib *IndexBroker) IndexEmpty() bool {
+	// index is empty if no keys/values have been added
+	return len(ib.indexData["Title"]) == 0 &&
+		len(ib.indexData["Version"]) == 0 &&
+		len(ib.indexData["Company"]) == 0 &&
+		len(ib.indexData["Website"]) == 0 &&
+		len(ib.indexData["Source"]) == 0 &&
+		len(ib.indexData["License"]) == 0 &&
+		len(ib.indexData["Description"]) == 0 &&
+		len(ib.indexData["Email"]) == 0 &&
+		len(ib.indexData["Name"]) == 0
+}
+
+func (ib *IndexBroker) indexField(field string, fieldData string, id string) {
+	log.Printf("Indexing field \"%s\" for ID \"%s\"...", field, id)
+	for i := range ib.indexData[field][fieldData] {
+		if ib.indexData[field][fieldData][i] == id {
+			return
+		}
+	}
+
+	ib.indexData[field][fieldData] = append(ib.indexData[field][fieldData], id)
+	log.Printf("Added index for Metadata ID \"%s\" successfully", id)
 }

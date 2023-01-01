@@ -3,7 +3,6 @@ package query
 import (
 	"log"
 	"metadata-api-server/internal/core"
-	"metadata-api-server/models"
 	"strings"
 )
 
@@ -50,54 +49,4 @@ func (se *SearchEngine) MetadataFieldAndSearch(field string, searchText string, 
 	for i := range deleteIds {
 		delete(matches, deleteIds[i])
 	}
-}
-
-func (se *SearchEngine) CreateMetadataIndex(metadataStore *models.MetadataStore) {
-	id := metadataStore.Id
-	metadata := metadataStore.Metadata
-
-	// save all metadata in index
-	log.Print("Indexing Metadata...")
-	se.indexField("Title", strings.ToLower(metadata.Title), id)
-	se.indexField("Version", strings.ToLower(metadata.Version), id)
-	se.indexField("Company", strings.ToLower(metadata.Company), id)
-	se.indexField("Website", strings.ToLower(metadata.Website), id)
-	se.indexField("Source", strings.ToLower(metadata.Source), id)
-	se.indexField("License", strings.ToLower(metadata.License), id)
-	se.indexField("Description", strings.ToLower(metadata.Description), id)
-
-	// index all maintainer data
-	for _, maintainer := range metadata.Maintainers {
-		se.indexField("Email", strings.ToLower(maintainer.Email), id)
-		se.indexField("Name", strings.ToLower(maintainer.Name), id)
-	}
-}
-
-func (se *SearchEngine) DeleteMetadataIndexById(id string) {
-	log.Printf("Deleting indexes for Metadata ID \"%s\"...", id)
-	index := se.IndexBroker.GetIndex()
-	for field, fieldDataMap := range index {
-		for fieldData, idList := range fieldDataMap {
-			for i := len(idList) - 1; i >= 0; i-- {
-				if idList[i] == id {
-					index[field][fieldData] = append(
-						index[field][fieldData][:i],
-						index[field][fieldData][i+1:]...)
-				}
-			}
-		}
-	}
-}
-
-func (se *SearchEngine) indexField(field string, fieldData string, id string) {
-	log.Printf("Indexing field \"%s\" for ID \"%s\"...", field, id)
-	index := se.IndexBroker.GetIndex()
-	for i := range index[field][fieldData] {
-		if index[field][fieldData][i] == id {
-			return
-		}
-	}
-
-	index[field][fieldData] = append(index[field][fieldData], id)
-	log.Printf("Added index for Metadata ID \"%s\" successfully", id)
 }
