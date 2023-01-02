@@ -63,7 +63,7 @@ func (ib *IndexBroker) CreateIndex(metadataStore *models.MetadataStore) {
 	metadata := metadataStore.Metadata
 
 	// save all metadata in index
-	log.Print("Indexing Metadata...")
+	log.Printf("Indexing Metadata ID \"%s\" if necessary...", id)
 	ib.indexField("Title", strings.ToLower(metadata.Title), id)
 	ib.indexField("Version", strings.ToLower(metadata.Version), id)
 	ib.indexField("Company", strings.ToLower(metadata.Company), id)
@@ -125,8 +125,11 @@ func (ib *IndexBroker) IndexEmpty() bool {
 	return len(ib.indexedIdSet) == 0
 }
 
+func (ib *IndexBroker) IndexContains(id string) bool {
+	return ib.indexedIdSet[id]
+}
+
 func (ib *IndexBroker) indexField(field string, fieldData string, id string) {
-	log.Printf("Indexing field \"%s\" for ID \"%s\"...", field, id)
 	for i := range ib.indexData[field][fieldData] {
 		if ib.indexData[field][fieldData][i] == id {
 			return
@@ -134,5 +137,4 @@ func (ib *IndexBroker) indexField(field string, fieldData string, id string) {
 	}
 
 	ib.indexData[field][fieldData] = append(ib.indexData[field][fieldData], id)
-	log.Printf("Added index for Metadata ID \"%s\" successfully", id)
 }
