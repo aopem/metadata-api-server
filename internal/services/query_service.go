@@ -5,6 +5,7 @@ import (
 	"log"
 	"metadata-api-server/internal/core"
 	"metadata-api-server/models"
+	"strings"
 )
 
 type QueryService struct {
@@ -29,39 +30,26 @@ func (qs *QueryService) ExecuteQuery(query *models.Query) ([]string, error) {
 
 	// uses "matches" as a "set" to store results of a search
 	matches := map[string]bool{}
+	queryMap := qs.QueryToMap(query)
 
 	// search all fields that are non-empty
 	// and merge all results into "matches" set
 	// which will contain ID of every document that
 	// has a partial or full text match to the query
-	if query.Title != "" {
+	initialQuery := true
+	for field, searchText := range queryMap {
+		if searchText == "" {
+			continue
+		}
+
 		// first search uses "OR" semantics since an "AND" search is limited
 		// by the content that is already present in the "matches" passed in
-		qs.searchEngine.MetadataFieldOrSearch("Title", query.Title, matches)
-	}
-	if query.Version != "" {
-		qs.searchEngine.MetadataFieldAndSearch("Version", query.Version, matches)
-	}
-	if query.MaintainerName != "" {
-		qs.searchEngine.MetadataFieldAndSearch("Name", query.MaintainerName, matches)
-	}
-	if query.MaintainerEmail != "" {
-		qs.searchEngine.MetadataFieldAndSearch("Email", query.MaintainerEmail, matches)
-	}
-	if query.Company != "" {
-		qs.searchEngine.MetadataFieldAndSearch("Company", query.Company, matches)
-	}
-	if query.Website != "" {
-		qs.searchEngine.MetadataFieldAndSearch("Website", query.Website, matches)
-	}
-	if query.Source != "" {
-		qs.searchEngine.MetadataFieldAndSearch("Source", query.Source, matches)
-	}
-	if query.License != "" {
-		qs.searchEngine.MetadataFieldAndSearch("License", query.License, matches)
-	}
-	if query.Description != "" {
-		qs.searchEngine.MetadataFieldAndSearch("Description", query.Description, matches)
+		if initialQuery {
+			qs.searchEngine.MetadataFieldOrSearch(field, searchText, matches)
+			initialQuery = false
+		} else {
+			qs.searchEngine.MetadataFieldAndSearch(field, searchText, matches)
+		}
 	}
 
 	// convert "matches" to a simple string slice
@@ -73,6 +61,20 @@ func (qs *QueryService) ExecuteQuery(query *models.Query) ([]string, error) {
 	log.Print("Matching IDs found for query:")
 	log.Print(matchIds)
 	return matchIds, nil
+}
+
+func (qs *QueryService) QueryToMap(query *models.Query) map[string]string {
+	return map[string]string{
+		"Title":       strings.ToLower(query.Title),
+		"Version":     strings.ToLower(query.Version),
+		"Name":        strings.ToLower(query.MaintainerName),
+		"Email":       strings.ToLower(query.MaintainerEmail),
+		"Company":     strings.ToLower(query.Company),
+		"Website":     strings.ToLower(query.Website),
+		"Source":      strings.ToLower(query.Source),
+		"License":     strings.ToLower(query.License),
+		"Description": strings.ToLower(query.Description),
+	}
 }
 
 func (qs *QueryService) validateQuery(query *models.Query) error {

@@ -4,13 +4,10 @@ import (
 	"metadata-api-server/internal/testutils"
 	"metadata-api-server/internal/utils"
 	"metadata-api-server/models"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-var testIndexDirectory = filepath.Join(utils.MainDirectory(), "localIndexTest")
 
 func TestIndexBroker(t *testing.T) {
 	testcases := []testutils.Test{{
@@ -38,7 +35,7 @@ func TestIndexBroker(t *testing.T) {
 
 	// if folder already exists, clean before running tests
 	// then, seed all random numbers that are generated
-	utils.DeleteFolder(testIndexDirectory)
+	utils.DeleteFolder(testutils.TestIndexDirectory)
 	testutils.SeedRandomGenerator()
 	for i := range testcases {
 		t.Run(testcases[i].Name, testcases[i].Function)
@@ -49,7 +46,7 @@ func TestCreateIndex(t *testing.T) {
 	assert := assert.New(t)
 
 	// create broker, metadata to index
-	ib := CreateIndexBroker(testIndexDirectory)
+	ib := CreateIndexBroker(testutils.TestIndexDirectory)
 	metadataStoreGenerated := testutils.GenerateMetadataStore()
 
 	// index metadata
@@ -64,7 +61,7 @@ func TestDeleteIndexById(t *testing.T) {
 	assert := assert.New(t)
 
 	// create broker, metadata to index
-	ib := CreateIndexBroker(testIndexDirectory)
+	ib := CreateIndexBroker(testutils.TestIndexDirectory)
 	metadataStoreGenerated := testutils.GenerateMetadataStore()
 
 	// index metadata
@@ -80,7 +77,7 @@ func TestGetIndex(t *testing.T) {
 	assert := assert.New(t)
 
 	// create broker
-	ib := CreateIndexBroker(testIndexDirectory)
+	ib := CreateIndexBroker(testutils.TestIndexDirectory)
 
 	// assert that index can be retrieved and is non-nil
 	assert.NotNil(ib.GetIndex())
@@ -90,7 +87,7 @@ func TestGetIndexPath(t *testing.T) {
 	assert := assert.New(t)
 
 	// create broker
-	ib := CreateIndexBroker(testIndexDirectory)
+	ib := CreateIndexBroker(testutils.TestIndexDirectory)
 
 	// assert that index exists at proper location
 	assert.NotEmpty(ib.GetIndexPath())
@@ -101,7 +98,7 @@ func TestSaveIndex(t *testing.T) {
 	assert := assert.New(t)
 
 	// create broker, metadata to index
-	ib := CreateIndexBroker(testIndexDirectory)
+	ib := CreateIndexBroker(testutils.TestIndexDirectory)
 	metadataStoreGenerated := testutils.GenerateMetadataStore()
 
 	// index data
@@ -126,7 +123,7 @@ func TestIndexEmpty(t *testing.T) {
 	assert := assert.New(t)
 
 	// create broker
-	ib := CreateIndexBroker(testIndexDirectory)
+	ib := CreateIndexBroker(testutils.TestIndexDirectory)
 
 	// assert that index starts out empty
 	assert.True(ib.IndexEmpty())
@@ -152,7 +149,7 @@ func TestIndexContains(t *testing.T) {
 	assert := assert.New(t)
 
 	// create broker, metadata to index
-	ib := CreateIndexBroker(testIndexDirectory)
+	ib := CreateIndexBroker(testutils.TestIndexDirectory)
 	metadataStoreGenerated := testutils.GenerateMetadataStore()
 
 	// index metadata

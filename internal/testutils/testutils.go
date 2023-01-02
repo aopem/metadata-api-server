@@ -2,7 +2,9 @@ package testutils
 
 import (
 	"math/rand"
+	"metadata-api-server/internal/utils"
 	"metadata-api-server/models"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -15,6 +17,9 @@ type Test struct {
 	Name     string
 	Function func(t *testing.T)
 }
+
+var TestIndexDirectory = filepath.Join(utils.MainDirectory(), "localIndexTest")
+var TestStorageDirectory = filepath.Join(utils.MainDirectory(), "localStoreTest")
 
 func AssertMetadataEqual(assert *assert.Assertions, metadataStore *models.MetadataStore, expected *models.MetadataStore) {
 	assert.Equal(metadataStore.Id, expected.Id)

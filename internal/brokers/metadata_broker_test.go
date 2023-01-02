@@ -10,8 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testStorageDirectory = filepath.Join(utils.MainDirectory(), "localStoreTest")
-
 func TestMetadataBroker(t *testing.T) {
 	testcases := []testutils.Test{{
 		Name:     "TestCreateMetadata",
@@ -29,7 +27,7 @@ func TestMetadataBroker(t *testing.T) {
 
 	// if folder already exists, clean before running tests
 	// then, seed all random numbers that are generated
-	utils.DeleteFolder(testStorageDirectory)
+	utils.DeleteFolder(testutils.TestStorageDirectory)
 	testutils.SeedRandomGenerator()
 	for i := range testcases {
 		t.Run(testcases[i].Name, testcases[i].Function)
@@ -40,12 +38,12 @@ func TestCreateMetadata(t *testing.T) {
 	assert := assert.New(t)
 
 	// create data, broker
-	mb := CreateMetadataBroker(testStorageDirectory)
+	mb := CreateMetadataBroker(testutils.TestStorageDirectory)
 	metadataStore := testutils.GenerateMetadataStore()
 
 	// test function, run assertions
 	metadataStoreCreated, err := mb.CreateMetadata(&metadataStore)
-	metadataFile := filepath.Join(testStorageDirectory, metadataStoreCreated.Id+".yaml")
+	metadataFile := filepath.Join(testutils.TestStorageDirectory, metadataStoreCreated.Id+".yaml")
 	assert.NoError(err)
 	assert.FileExists(metadataFile)
 	utils.DeleteFile(metadataFile)
@@ -55,10 +53,10 @@ func TestDeleteMetadataById(t *testing.T) {
 	assert := assert.New(t)
 
 	// create data, broker
-	mb := CreateMetadataBroker(testStorageDirectory)
+	mb := CreateMetadataBroker(testutils.TestStorageDirectory)
 	metadataStore := testutils.GenerateMetadataStore()
 	_, err := mb.CreateMetadata(&metadataStore)
-	metadataFile := filepath.Join(testStorageDirectory, metadataStore.Id+".yaml")
+	metadataFile := filepath.Join(testutils.TestStorageDirectory, metadataStore.Id+".yaml")
 	assert.NoError(err)
 	assert.FileExists(metadataFile)
 
@@ -72,10 +70,10 @@ func TestGetMetadataById(t *testing.T) {
 	assert := assert.New(t)
 
 	// create data, broker
-	mb := CreateMetadataBroker(testStorageDirectory)
+	mb := CreateMetadataBroker(testutils.TestStorageDirectory)
 	metadataStore := testutils.GenerateMetadataStore()
 	_, err := mb.CreateMetadata(&metadataStore)
-	metadataFile := filepath.Join(testStorageDirectory, metadataStore.Id+".yaml")
+	metadataFile := filepath.Join(testutils.TestStorageDirectory, metadataStore.Id+".yaml")
 	assert.NoError(err)
 	assert.FileExists(metadataFile)
 
@@ -92,7 +90,7 @@ func TestGetMetadataList(t *testing.T) {
 	assert := assert.New(t)
 
 	// create broker
-	mb := CreateMetadataBroker(testStorageDirectory)
+	mb := CreateMetadataBroker(testutils.TestStorageDirectory)
 
 	// generate/save a list of metadata
 	listLength := 10
@@ -118,5 +116,5 @@ func TestGetMetadataList(t *testing.T) {
 	}
 
 	// cleanup
-	utils.DeleteFolder(testStorageDirectory)
+	utils.DeleteFolder(testutils.TestStorageDirectory)
 }
