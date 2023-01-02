@@ -11,8 +11,9 @@ import (
 )
 
 type IndexBroker struct {
-	indexData map[string]map[string][]string
-	indexPath string
+	indexData    map[string]map[string][]string
+	indexPath    string
+	indexedIdSet map[string]bool
 }
 
 func CreateIndexBroker(rootDirectory string) *IndexBroker {
@@ -51,8 +52,9 @@ func CreateIndexBroker(rootDirectory string) *IndexBroker {
 	}
 
 	return &IndexBroker{
-		indexData: indexData,
-		indexPath: indexPath,
+		indexData:    indexData,
+		indexPath:    indexPath,
+		indexedIdSet: make(map[string]bool),
 	}
 }
 
@@ -75,6 +77,9 @@ func (ib *IndexBroker) CreateIndex(metadataStore *models.MetadataStore) {
 		ib.indexField("Email", strings.ToLower(maintainer.Email), id)
 		ib.indexField("Name", strings.ToLower(maintainer.Name), id)
 	}
+
+	// add to indexed ID set
+	ib.indexedIdSet[id] = true
 }
 
 func (ib *IndexBroker) DeleteIndexById(id string) {
@@ -86,6 +91,9 @@ func (ib *IndexBroker) DeleteIndexById(id string) {
 					ib.indexData[field][fieldData] = append(
 						ib.indexData[field][fieldData][:i],
 						ib.indexData[field][fieldData][i+1:]...)
+
+					// delete from indexed ID set
+					delete(ib.indexedIdSet, id)
 				}
 			}
 		}
@@ -114,16 +122,7 @@ func (ib *IndexBroker) SaveIndex() error {
 }
 
 func (ib *IndexBroker) IndexEmpty() bool {
-	// index is empty if no keys/values have been added
-	return len(ib.indexData["Title"]) == 0 &&
-		len(ib.indexData["Version"]) == 0 &&
-		len(ib.indexData["Company"]) == 0 &&
-		len(ib.indexData["Website"]) == 0 &&
-		len(ib.indexData["Source"]) == 0 &&
-		len(ib.indexData["License"]) == 0 &&
-		len(ib.indexData["Description"]) == 0 &&
-		len(ib.indexData["Email"]) == 0 &&
-		len(ib.indexData["Name"]) == 0
+	return len(ib.indexedIdSet) == 0
 }
 
 func (ib *IndexBroker) indexField(field string, fieldData string, id string) {
