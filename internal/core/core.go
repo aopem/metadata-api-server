@@ -15,7 +15,7 @@ type MetadataBroker interface {
 }
 
 type MetadataService interface {
-	CreateMetadata(metadata *models.Metadata) (*models.MetadataStore, error)
+	CreateMetadata(metadataStore *models.MetadataStore) (*models.MetadataStore, error)
 	DeleteMetadataById(id string) (*models.MetadataStore, error)
 	GetMetadataById(id string) (*models.MetadataStore, error)
 	GetMetadata() ([]models.MetadataStore, error)

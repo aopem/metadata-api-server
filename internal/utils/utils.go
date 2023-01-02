@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"io/fs"
 	"log"
+	"metadata-api-server/models"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -18,6 +19,25 @@ func MainDirectory() string {
 	}
 
 	return filepath.Dir(filepath.Dir(filepath.Dir(filename)))
+}
+
+func MetadataEqual(metadataStore *models.MetadataStore, expected *models.MetadataStore) bool {
+	equal := true
+	equal = equal && metadataStore.Id == expected.Id
+	equal = equal && metadataStore.Metadata.Title == expected.Metadata.Title
+	equal = equal && metadataStore.Metadata.Version == expected.Metadata.Version
+	equal = equal && metadataStore.Metadata.Company == expected.Metadata.Company
+	equal = equal && metadataStore.Metadata.Website == expected.Metadata.Website
+	equal = equal && metadataStore.Metadata.Source == expected.Metadata.Source
+	equal = equal && metadataStore.Metadata.License == expected.Metadata.License
+	equal = equal && metadataStore.Metadata.Description == expected.Metadata.Description
+
+	for i := range expected.Metadata.Maintainers {
+		equal = equal && metadataStore.Metadata.Maintainers[i].Email == expected.Metadata.Maintainers[i].Email
+		equal = equal && metadataStore.Metadata.Maintainers[i].Name == expected.Metadata.Maintainers[i].Name
+	}
+
+	return equal
 }
 
 func OpenFile(filepath string, flags int, mode fs.FileMode) *os.File {

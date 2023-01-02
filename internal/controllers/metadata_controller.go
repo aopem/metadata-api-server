@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 	"metadata-api-server/internal/core"
+	"metadata-api-server/internal/utils"
 	"metadata-api-server/models"
 	"net/http"
 
@@ -20,15 +21,15 @@ func CreateMetadataController(ms core.MetadataService) *MetadataController {
 }
 
 func (mc *MetadataController) PutMetadata(c *gin.Context) {
-	metadata := &models.Metadata{}
+	metadataStore := &models.MetadataStore{}
 	response := models.Response{
 		StatusCode: http.StatusCreated,
 		Data:       nil,
 		Errors:     nil,
 	}
 
-	// validate metadata payload
-	if err := c.BindYAML(metadata); err != nil {
+	// validate payload
+	if err := c.BindYAML(metadataStore); err != nil {
 		response.StatusCode = http.StatusBadRequest
 		response.Errors = append(response.Errors, err.Error())
 		log.Printf("[ERROR] %s", err.Error())
@@ -36,13 +37,28 @@ func (mc *MetadataController) PutMetadata(c *gin.Context) {
 		return
 	}
 
-	createdMetadata, err := mc.MetadataService.CreateMetadata(metadata)
+	// attempt to get metadata so that any changes can be detected later
+	// if this is a request to update already existing data
+	expected, _ := mc.MetadataService.GetMetadataById(metadataStore.Id)
+
+	createdMetadata, err := mc.MetadataService.CreateMetadata(metadataStore)
 	if err != nil {
 		response.StatusCode = http.StatusBadRequest
 		response.Errors = append(response.Errors, err.Error())
 		log.Printf("[ERROR] %s", err.Error())
 		c.YAML(response.StatusCode, response)
 		return
+	}
+
+	// determine correct status code to send back,
+	// based on whether metadata record already existed
+	// and whether or not it has been modified
+	if expected != nil {
+		if utils.MetadataEqual(createdMetadata, expected) {
+			response.StatusCode = http.StatusNotModified
+		} else {
+			response.StatusCode = http.StatusOK
+		}
 	}
 
 	response.Data = createdMetadata
