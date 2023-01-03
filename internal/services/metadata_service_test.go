@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMetadataBroker(t *testing.T) {
+func TestMetadataService(t *testing.T) {
 	testcases := []testutils.Test{{
 		Name:     "TestCreateMetadata",
 		Function: TestCreateMetadata,
