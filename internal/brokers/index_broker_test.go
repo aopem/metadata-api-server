@@ -33,13 +33,18 @@ func TestIndexBroker(t *testing.T) {
 		Function: TestIndexContains,
 	}}
 
-	// if folder already exists, clean before running tests
-	// then, seed all random numbers that are generated
-	utils.DeleteFolder(testutils.TestIndexDirectory)
+	// seed all random numbers that are generated
 	testutils.SeedRandomGenerator()
+
+	// run tests
 	for i := range testcases {
+		// if folder already exists, clean before running tests
+		utils.DeleteFolder(testutils.TestIndexDirectory)
 		t.Run(testcases[i].Name, testcases[i].Function)
 	}
+
+	// cleanup
+	utils.DeleteFolder(testutils.TestIndexDirectory)
 }
 
 func TestCreateIndex(t *testing.T) {

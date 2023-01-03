@@ -17,14 +17,20 @@ func TestQueryService(t *testing.T) {
 		Function: TestExecuteQuery,
 	}}
 
-	// if folders already exist, clean before running tests
-	// then, seed all random numbers that are generated
-	utils.DeleteFolder(testutils.TestIndexDirectory)
-	utils.DeleteFolder(testutils.TestStorageDirectory)
+	// seed all random numbers that are generated
 	testutils.SeedRandomGenerator()
+
+	// run tests
 	for i := range testcases {
+		// if folders already exist, clean before running tests
+		utils.DeleteFolder(testutils.TestStorageDirectory)
+		utils.DeleteFolder(testutils.TestIndexDirectory)
 		t.Run(testcases[i].Name, testcases[i].Function)
 	}
+
+	// cleanup
+	utils.DeleteFolder(testutils.TestStorageDirectory)
+	utils.DeleteFolder(testutils.TestIndexDirectory)
 }
 
 func TestExecuteQuery(t *testing.T) {

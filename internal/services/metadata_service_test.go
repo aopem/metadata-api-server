@@ -25,14 +25,20 @@ func TestMetadataService(t *testing.T) {
 		Function: TestGetMetadata,
 	}}
 
-	// if folders already exist, clean before running tests
-	// then, seed all random numbers that are generated
-	utils.DeleteFolder(testutils.TestStorageDirectory)
-	utils.DeleteFolder(testutils.TestIndexDirectory)
+	// seed all random numbers that are generated
 	testutils.SeedRandomGenerator()
+
+	// run tests
 	for i := range testcases {
+		// if folders already exist, clean before running tests
+		utils.DeleteFolder(testutils.TestStorageDirectory)
+		utils.DeleteFolder(testutils.TestIndexDirectory)
 		t.Run(testcases[i].Name, testcases[i].Function)
 	}
+
+	// cleanup
+	utils.DeleteFolder(testutils.TestStorageDirectory)
+	utils.DeleteFolder(testutils.TestIndexDirectory)
 }
 
 func TestCreateMetadata(t *testing.T) {
