@@ -103,14 +103,9 @@ func TestPutMetadataQuery(t *testing.T) {
 	// add parameters to request that match entry1
 	urlParameters := request.URL.Query()
 	urlParameters.Add("title", "Valid App 1")
-	urlParameters.Add("version", "")
 	urlParameters.Add("company", "Random Inc.")
 	urlParameters.Add("website", "https://website.com")
 	urlParameters.Add("source", "https://github.com/random/repo")
-	urlParameters.Add("maintainers", "")
-	urlParameters.Add("company", "")
-	urlParameters.Add("license", "")
-	urlParameters.Add("description", "")
 	request.URL.RawQuery = urlParameters.Encode()
 
 	// execute the request and record the response
