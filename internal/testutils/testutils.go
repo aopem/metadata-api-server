@@ -18,11 +18,21 @@ type Test struct {
 	Function func(t *testing.T)
 }
 
+type MetadataResponse struct {
+	StatusCode int                    `yaml:"statusCode"`
+	Data       []models.MetadataStore `yaml:"data"`
+	Errors     []interface{}          `yaml:"errors"`
+}
+
 var TestIndexDirectory = filepath.Join(utils.MainDirectory(), "localIndexTest")
 var TestStorageDirectory = filepath.Join(utils.MainDirectory(), "localStoreTest")
 
-func AssertMetadataEqual(assert *assert.Assertions, metadataStore *models.MetadataStore, expected *models.MetadataStore) {
+func AssertMetadataAndIdEqual(assert *assert.Assertions, metadataStore *models.MetadataStore, expected *models.MetadataStore) {
 	assert.Equal(metadataStore.Id, expected.Id)
+	AssertMetadataEqual(assert, metadataStore, expected)
+}
+
+func AssertMetadataEqual(assert *assert.Assertions, metadataStore *models.MetadataStore, expected *models.MetadataStore) {
 	assert.Equal(metadataStore.Metadata.Title, expected.Metadata.Title)
 	assert.Equal(metadataStore.Metadata.Version, expected.Metadata.Version)
 	assert.Equal(metadataStore.Metadata.Company, expected.Metadata.Company)

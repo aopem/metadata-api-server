@@ -61,7 +61,7 @@ func (mc *MetadataController) PutMetadata(c *gin.Context) {
 		}
 	}
 
-	response.Data = createdMetadata
+	response.Data = append(response.Data, *createdMetadata)
 	c.YAML(response.StatusCode, response)
 }
 
@@ -81,7 +81,7 @@ func (mc *MetadataController) DeleteMetadataById(c *gin.Context) {
 		return
 	}
 
-	response.Data = deletedMetadata
+	response.Data = append(response.Data, *deletedMetadata)
 	c.YAML(response.StatusCode, response)
 }
 
@@ -101,7 +101,7 @@ func (mc *MetadataController) GetMetadataById(c *gin.Context) {
 		return
 	}
 
-	response.Data = metadata
+	response.Data = append(response.Data, *metadata)
 	c.YAML(response.StatusCode, response)
 }
 
@@ -121,6 +121,9 @@ func (mc *MetadataController) GetMetadata(c *gin.Context) {
 		return
 	}
 
-	response.Data = metadataList
+	// add list to response data
+	for i := range metadataList {
+		response.Data = append(response.Data, metadataList[i])
+	}
 	c.YAML(response.StatusCode, response)
 }

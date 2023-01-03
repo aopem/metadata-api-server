@@ -56,7 +56,7 @@ func TestCreateMetadata(t *testing.T) {
 	metadataStoreRetrieved, err := ms.GetMetadataById(metadataStore.Id)
 	assert.NoError(err)
 	assert.NotNil(metadataStoreRetrieved)
-	testutils.AssertMetadataEqual(assert, metadataStoreRetrieved, metadataStoreCreated)
+	testutils.AssertMetadataAndIdEqual(assert, metadataStoreRetrieved, metadataStoreCreated)
 
 	// cleanup
 	ms.DeleteMetadataById(metadataStoreCreated.Id)
@@ -110,7 +110,7 @@ func TestGetMetadataById(t *testing.T) {
 	metadataStoreRetrieved, err := ms.GetMetadataById(metadataStore.Id)
 	assert.NoError(err)
 	assert.NotNil(metadataStoreRetrieved)
-	testutils.AssertMetadataEqual(assert, metadataStoreRetrieved, metadataStoreCreated)
+	testutils.AssertMetadataAndIdEqual(assert, metadataStoreRetrieved, metadataStoreCreated)
 
 	// cleanup
 	ms.DeleteMetadataById(metadataStoreRetrieved.Id)
@@ -144,7 +144,7 @@ func TestGetMetadata(t *testing.T) {
 	for i := range metadataStoreList {
 		// make sure to compare using ID since not stored in a particular order
 		expected := metadataStoreExpected[metadataStoreList[i].Id]
-		testutils.AssertMetadataEqual(
+		testutils.AssertMetadataAndIdEqual(
 			assert,
 			&metadataStoreList[i],
 			&expected)

@@ -48,6 +48,8 @@ func (qc *QueryController) PutMetadataQuery(c *gin.Context) {
 		return
 	}
 
-	response.Data = queryResults
+	for i := range queryResults {
+		response.Data = append(response.Data, queryResults[i])
+	}
 	c.YAML(response.StatusCode, response)
 }
