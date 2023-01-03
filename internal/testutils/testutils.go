@@ -24,6 +24,12 @@ type MetadataResponse struct {
 	Errors     []interface{}          `yaml:"errors"`
 }
 
+type QueryResponse struct {
+	StatusCode int           `yaml:"statusCode"`
+	Data       []string      `yaml:"data"`
+	Errors     []interface{} `yaml:"errors"`
+}
+
 var TestIndexDirectory = filepath.Join(utils.MainDirectory(), "localIndexTest")
 var TestStorageDirectory = filepath.Join(utils.MainDirectory(), "localStoreTest")
 

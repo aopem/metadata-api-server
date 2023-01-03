@@ -30,7 +30,7 @@ func (qc *QueryController) PutMetadataQuery(c *gin.Context) {
 	}
 
 	// validate query
-	if err := c.ShouldBind(query); err != nil {
+	if err := c.ShouldBindQuery(query); err != nil {
 		response.StatusCode = http.StatusBadRequest
 		response.Errors = append(response.Errors, err.Error())
 		log.Printf("[ERROR] %s", err.Error())
